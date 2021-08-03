@@ -142,3 +142,26 @@ aws s3 cp s3://aws-glue-local-test-bucket ~/Downloads/aws-glue-local-test-bucket
 ./aws s3api list-objects --bucket aws-glue-local-test-bucket --endpoint-url http://localhost:4566
 ./aws s3 cp s3://aws-glue-local-test-bucket ~/Downloads/aws-glue-local-test-bucket --recursive --endpoint-url http://localhost:4566
 ```
+
+ーーーーーーーーーーーーーー
+
+# Glueメモ
+
+1最大容量 = 1worker = (G.1X: 1executor,  G.2X は2DPUにマッピングされているので2executor?)
+設定値みてもパッとみあってそう・・・？
+
+https://docs.aws.amazon.com/ja_jp/glue/latest/dg/aws-glue-api-jobs-job.html
+WorkerType - UTF-8 文字列 (有効な値: Standard="" | G.1X="" | G.2X="")。
+
+ジョブの実行時に割り当てられる事前定義済みのワーカーの種類。使用できる値は、Standard、G.1X、または G.2X です。
+Standard ワーカータイプでは、各ワーカーは 4 vCPU、16 GB のメモリ、50 GB のディスク、ワーカーあたり 2 個のエグゼキュターを提供します。
+G.1X ワーカータイプでは、各ワーカーは 1 DPU (4 vCPU、16 GB のメモリ、64 GB のディスク) にマッピングされており、ワーカーごとに 1 個のエグゼキュターを提供します。メモリを大量に消費するジョブには、このワーカータイプをお勧めします。
+G.2X ワーカータイプでは、各ワーカーは 2 DPU (8 vCPU、32 GB のメモリ、128 GB のディスク) にマッピングされており、ワーカーごとに 1 個のエグゼキュターを提供します。メモリを大量に消費するジョブには、このワーカータイプをお勧めします
+8月4日 7:59
+西　悠之[水以外在宅]
+西　悠之[水以外在宅]
+1executorで実行されるタスク数は決められているので
+groupSize は、各ファイルから読み取り、個々の Spark タスクで処理するデータの量を設定できるオプションのフィールドなので
+変にタスクの並列数が増えたとしても、1タスクで処理するデータ量を抑えてやればOOMは抑えていけそう？
+→ 運用中にOOMが発生してもジョブパラメータなので最悪試行錯誤できる
+https://aws.amazon.com/jp/blogs/news/optimize-memory-management-in-aws-glue/
